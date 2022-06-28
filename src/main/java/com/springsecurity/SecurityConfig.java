@@ -5,6 +5,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+import javax.servlet.http.HttpSession;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -31,5 +33,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     httpServletResponse.sendRedirect("/login");
                 })
                 .permitAll(); // loginPage에는 누구나 접근가능하게 만듦
+        http
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login")
+                .addLogoutHandler((httpServletRequest, httpServletResponse, authentication) -> {
+                    HttpSession session = httpServletRequest.getSession();
+                    session.invalidate();
+                })
+                .logoutSuccessHandler((httpServletRequest, httpServletResponse, authentication) -> {
+                    httpServletResponse.sendRedirect("/login");
+                })
+                .deleteCookies("remember-me");
     }
 }
